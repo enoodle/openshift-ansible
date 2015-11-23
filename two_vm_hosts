@@ -1,0 +1,17 @@
+[OSv3:children]
+masters
+nodes
+
+[OSv3:vars]
+ansible_ssh_user=root
+
+deployment_type=origin
+
+#use the manageiq role
+use_manageiq=True
+
+[masters]
+openshift-vm-2
+
+[nodes]
+openshift-vm-3

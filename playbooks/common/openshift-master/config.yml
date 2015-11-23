@@ -351,6 +351,12 @@
   - role: openshift_cluster_metrics
     when: openshift.common.use_cluster_metrics | bool
 
+- name: ManageIQ Service Accounts
+  hosts: oo_first_master
+  roles:
+  - role: openshift_manageiq
+    when: openshift.common.use_manageiq
+
 - name: Determine cluster dns ip
   hosts: oo_first_master
   tasks:

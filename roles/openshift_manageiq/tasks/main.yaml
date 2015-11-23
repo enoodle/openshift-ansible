@@ -1,0 +1,74 @@
+---
+
+- name: Install ManageIQ service account templates
+  copy:
+    src: manageiq-serviceaccount
+    dest: /etc/origin/
+
+- name: Add Managment Infrastructure project
+  command: > 
+    {{ openshift.common.admin_binary }} new-project
+    management-infra
+    --description="Management Infrastructure"
+  register: osmiq_create_mi_project
+  failed_when: "'already exists' not in osmiq_create_mi_project.stderr and osmiq_create_mi_project.rc != 0"
+  changed_when: false
+
+- name: Create Service Account
+  command: >
+    {{ openshift.common.client_binary }} create -n
+    management-infra -f
+    /etc/origin/manageiq-serviceaccount/manageiq-serviceaccount.yaml
+  register: osmiq_create_service_account
+  failed_when: "'already exists' not in osmiq_create_service_account.stderr and osmiq_create_service_account.rc != 0"
+  changed_when: false
+
+- name: Create Cluster Role
+  command: >
+    {{ openshift.common.client_binary }} create -f
+    /etc/origin/manageiq-serviceaccount/manageiq-clusterrole.yaml
+  register: osmiq_create_cluster_role
+  failed_when: "'already exists' not in osmiq_create_cluster_role.stderr and osmiq_create_cluster_role.rc != 0"
+  changed_when: false
+
+- name: Add role to admin
+  command: >
+    {{ openshift.common.admin_binary }} policy
+    add-role-to-user -n
+    management-infra
+    admin -z
+    managment-admin
+  register: osmiq_add_role_admin
+  failed_when: "'already exists' not in osmiq_add_role_admin.stderr and osmiq_add_role_admin.rc != 0"
+  changed_when: false
+
+- name: Add role to management infra admin
+  command: >
+    {{ openshift.common.admin_binary }} policy
+    add-role-to-user -n
+    management-infra
+    management-infra-admin -z
+    managment-admin
+  register: osmiq_add_role_miadmin
+  failed_when: "'already exists' not in osmiq_add_role_miadmin.stderr and osmiq_add_role_miadmin.rc != 0"
+  changed_when: false
+
+- name: Add cluster role to cluster reader
+  command: >
+    {{ openshift.common.admin_binary }} policy
+    add-cluster-role-to-user
+    cluster-reader
+    system:serviceaccount:management-infra:management-admin
+  register: osmiq_add_cluster_role_reader
+  failed_when: "'already exists' not in osmiq_add_cluster_role_reader.stderr and osmiq_add_cluster_role_reader.rc != 0"
+  changed_when: false
+
+- name: Add scc to user
+  command: >
+    {{ openshift.common.admin_binary }} policy
+    add-scc-to-user
+    privileged
+    system:serviceaccount:management-infra:management-admin
+  register: osmiq_add_scc_to_user
+  failed_when: "'already exists' not in osmiq_add_scc_to_user.stderr and osmiq_add_scc_to_user.rc != 0"
+  changed_when: false
