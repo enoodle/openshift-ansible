@@ -25,7 +25,7 @@
   - role: openshift_projects
     # TODO: Move standard project definitions to openshift_hosted/vars/main.yml
     # Vars are not accessible in meta/main.yml in ansible-1.9.x
-    openshift_projects: "{{ openshift_additional_projects | default({}) | oo_merge_dicts({'default':{'default_node_selector':''},'openshift-infra':{'default_node_selector':''},'logging':{'default_node_selector':''}}) }}"
+    openshift_projects: "{{ openshift_additional_projects | default({}) | oo_merge_dicts({'default':{'default_node_selector':''},'openshift-infra':{'default_node_selector':''}}) }}"
   - role: openshift_serviceaccounts
     openshift_serviceaccounts_names:
     - router
@@ -46,6 +46,10 @@
     when: openshift.hosted.metrics.deploy | bool
   - role: cockpit-ui
     when: openshift.common.deployment_subtype == 'registry'
+
+  - role: openshift_hosted_logging
+    openshift_hosted_logging_cleanup: no
+    when: openshift.hosted.logging.deploy
 
 - name: Configure CA certificate for secure registry
   hosts: oo_nodes_to_config
