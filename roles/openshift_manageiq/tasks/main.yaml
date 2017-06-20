@@ -27,6 +27,12 @@
       - pods/proxy
       verbs:
       - "*"
+    - apiGroups:
+      - ""
+      resources:
+      - pods/log
+      verbs:
+      - "get"
 
 - name: Create Hawkular Metrics Admin Cluster Role
   oc_clusterrole:
